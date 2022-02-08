@@ -1,0 +1,22 @@
+---
+
+resources:
+- name: new
+  type: docker
+  source:
+    uri: https://hub.docker.com/repository/docker/krusev/new_image
+    
+
+jobs:
+- name: new
+  public: true
+  plan:
+  - task: simple-task
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source: { repository: busybox }
+      run:
+        path: echo
+        args: ["Hello SAP"]
