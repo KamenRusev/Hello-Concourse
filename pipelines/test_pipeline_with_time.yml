@@ -5,7 +5,7 @@ resources:
   type: time
   source: {interval: 5m}
 
-- name: test_script
+- name: git-repo
   type: git
   source:
     uri: https://github.com/KamenRusev/Hello-Concourse.git
@@ -16,19 +16,16 @@ jobs:
   plan:
   - get: every-5m
     trigger: true
+  - get: git-repo
+    trigger: true
   - task: simple-task-every-5m
     config:
       platform: linux
       image_resource:
         type: registry-image
         source: { repository: busybox }
+      inputs:
+        - name: git-repo
       run:
-        path: echo
-        args: ["Hello SAP"]
-
-- name: test_script
-  plan:
-  - get: test_script
-    trigger: true
-  - task: run_test_script
-    file: test_script/test_script.yml
+        path: sh
+        args: ["git-repo/scripts/test_script.sh"]
