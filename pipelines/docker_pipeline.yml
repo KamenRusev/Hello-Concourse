@@ -1,0 +1,36 @@
+---
+
+resources:
+- name: git-repo
+  type: git
+  source:
+    uri: https://github.com/KamenRusev/Hello-Concourse
+    branch: main
+
+- name: simple-image
+  type: docker-image
+  source:
+    repository: krusev/new_image
+    username: ((docker_username))
+    password: ((docker_password))
+
+jobs:
+- name: build-and-push
+  plan:
+  - get: git-repo
+  - task: build-task-image
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: krusev/new_image
+  public: true
+  serial: true
+  plan:
+  - get: git-repo
+    trigger: true
+  - put: simple-image
+    params:
+      build: git-repo
